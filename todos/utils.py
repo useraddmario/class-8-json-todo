@@ -8,24 +8,28 @@ def parse_date(date_str):
         '%Y-%m-%d',
         '%Y-%m-%d %H:%M:%S',
     ]
-    if date_str is None:
-        return date_str
     for format in formats:
         try:
             return datetime.strptime(date_str, format)
         except ValueError:
             pass
 
+    raise InvalidTaskDueDateException()
+
 
 def parse_int(value):
-    pass
+    try:
+        return int(value)
+    except ValueError:
+        return None
 
 
 def serialize(tasks):
     new_tasks = []
     for task in tasks:
         task = task.copy()
-        task['due_on'] = task['due_on'].strftime('%Y-%m-%d %H:%M:%S')
+        if task['due_on']:
+            task['due_on'] = task['due_on'].strftime('%Y-%m-%d %H:%M:%S')
         new_tasks.append(task)
     return new_tasks
 
@@ -35,7 +39,8 @@ def unserialize(blob):
     new_tasks = []
     for task in raw_tasks:
         task = task.copy()
-        task['due_on'] = parse_date(task['due_on'])
+        if task['due_on']:
+            task['due_on'] = parse_date(task['due_on'])
         new_tasks.append(task)
     return new_tasks
 
